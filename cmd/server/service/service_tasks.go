@@ -85,3 +85,9 @@ func (s *TaskService) Update(id uint, data io.Reader) (*bytes.Buffer, error) {
 
 	return buf, nil
 }
+
+func (s *TaskService) Delete(id uint) error {
+	err := s.Model.Delete(id)
+	
+	return err
+}

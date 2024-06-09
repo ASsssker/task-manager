@@ -122,3 +122,10 @@ func (m *TaskModel) Update(id uint, title, description string, status bool) (*Ta
 
 	return t, nil
 }
+
+func (m *TaskModel) Delete(id uint) error {
+	stmt := "DELETE FROM tasks WHERE id = $1"
+	_, err := m.DB.Exec(stmt, id)
+
+	return err
+}

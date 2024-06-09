@@ -69,6 +69,22 @@ func (app *Applicaton) PutTask(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	w.WriteHeader(http.StatusOK)
 	w.Write(data.Bytes())
+}
+
+func (app *Applicaton) DeleteTask(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	id_conv, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	err = app.TaskService.Delete(uint(id_conv))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte(http.StatusText(http.StatusOK)))
 }

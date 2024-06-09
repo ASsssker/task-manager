@@ -12,6 +12,7 @@ func (app *Applicaton) getRoutes() *chi.Mux {
 		r.Post("/", app.PostTask)
 		r.Get("/{id}", app.GetTask)
 		r.Put("/{id}", app.PutTask)
+		r.Delete("/{id}", app.DeleteTask)
 	})
 
 	return r
