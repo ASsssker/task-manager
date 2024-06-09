@@ -1,17 +1,22 @@
 package server
 
 import (
+	"log"
+	"os"
+	"task-manager/cmd/server/service"
 	"task-manager/internal/models"
 
-	_"github.com/jackc/pgx/v5/stdlib"
+	"github.com/fatih/color"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 
 
 type Applicaton struct {
 	*config
-	taskModel *models.TaskModel
-	userModel *models.UserModel
+	TaskService *service.TaskService
+	InfoLog *log.Logger
+	ErrorLog *log.Logger
 }
 
 func GetApp() (*Applicaton, error) {
@@ -32,13 +37,18 @@ func GetApp() (*Applicaton, error) {
 	if err != nil {
 		return nil, err
 	}
-	app.taskModel = taskModel
+	app.TaskService = &service.TaskService{
+		Model: taskModel,
+	}
 
+	app.InfoLog = getLogger(os.Stdout, "INFO", color.FgGreen, log.Ldate|log.Ltime)
+	app.ErrorLog = getLogger(os.Stderr, "ERROR", color.FgRed, log.Ldate|log.Ltime|log.Lshortfile)
 
 	return &app, nil
 }
 
 func (app *Applicaton) Run() error{
+	
 	err := app.RunServer()
 	return err
 }
