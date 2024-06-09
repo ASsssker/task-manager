@@ -2,17 +2,18 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
 type Task struct {
-	ID uint
-	Title string
-	Description string
-	Status bool
-	Created time.Time
-	Updated time.Time
-	UserID uint
+	ID          uint      `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Status      bool      `json:"status"`
+	Created     time.Time `json:"created"`
+	Updated     time.Time `json:"updated"`
+	UserID      uint      `json:"user_id"`
 }
 
 type TaskModel struct {
@@ -30,9 +31,9 @@ func GetTaskModel(db *sql.DB) (*TaskModel, error) {
 }
 
 func (m *TaskModel) initTable() error {
-	stmt := "CREATE TABLE IF NOT EXISTS tasks " + 
-	"(id SERIAL PRIMARY KEY, title TEXT, description TEXT,"  +
-	" status BOOLEAN, created TIMESTAMP, updated TIMESTAMP, user_id INTEGER)"
+	stmt := "CREATE TABLE IF NOT EXISTS tasks " +
+		"(id SERIAL PRIMARY KEY, title TEXT, description TEXT," +
+		" status BOOLEAN, created TIMESTAMP, updated TIMESTAMP, user_id INTEGER)"
 
 	if _, err := m.DB.Exec(stmt); err != nil {
 		return err
@@ -43,16 +44,16 @@ func (m *TaskModel) initTable() error {
 
 func (m *TaskModel) Insert(title, description string, userID uint) (*Task, error) {
 	stmt := "INSERT INTO tasks (title, description, status, created, updated, user_id) " +
-			"VALUES ($1, $2, $3, $4, $5, $6) " +
-			"RETURNING id"
-	
+		"VALUES ($1, $2, $3, $4, $5, $6) " +
+		"RETURNING id"
+
 	t := &Task{
-		Title: title,
+		Title:       title,
 		Description: description,
-		Status: false,
-		Created: time.Now(),
-		Updated: time.Now(),
-		UserID: userID,
+		Status:      false,
+		Created:     time.Now(),
+		Updated:     time.Now(),
+		UserID:      userID,
 	}
 
 	if err := m.DB.QueryRow(stmt, t.Title, t.Description, t.Status, t.Created, t.Updated, t.UserID).Scan(&t.ID); err != nil {
@@ -86,7 +87,7 @@ func (m *TaskModel) GetLists() ([]*Task, error) {
 
 	tasks := []*Task{}
 
-	for rows.Next(){
+	for rows.Next() {
 		t := &Task{}
 		if err := rows.Scan(&t.ID, &t.Title, &t.Description, &t.Status, &t.Created, &t.Updated, &t.UserID); err != nil {
 			return nil, err
@@ -100,25 +101,24 @@ func (m *TaskModel) GetLists() ([]*Task, error) {
 
 	return tasks, nil
 
-	
 }
 
 func (m *TaskModel) Update(id uint, title, description string, status bool) (*Task, error) {
-	stmt := "UPDATE tasks SET (title = $1, description = $2, updated = $3) WHERE id = $4 " +
-			"RETURNING created, user_id"
+	stmt := "UPDATE tasks SET title = $1, description = $2, status = $3, updated = $4 WHERE id = $5 " +
+		"RETURNING created, user_id"
 
 	t := &Task{
-		ID: id,
-		Title: title,
+		ID:          id,
+		Title:       title,
 		Description: description,
-		Status: status,
-		Updated: time.Now(),
+		Status:      status,
+		Updated:     time.Now(),
 	}
 
-	if err := m.DB.QueryRow(stmt, t.Title, t.Description, t.Updated, t.ID).Scan(&t.Created, &t.UserID); err != nil {
+	if err := m.DB.QueryRow(stmt, t.Title, t.Description, t.Status, t.Updated, t.ID).Scan(&t.Created, &t.UserID); err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
 
 	return t, nil
 }
-

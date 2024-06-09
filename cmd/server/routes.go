@@ -4,10 +4,15 @@ import "github.com/go-chi/chi/v5"
 
 func (app *Applicaton) getRoutes() *chi.Mux {
 	r := chi.NewMux()
-	r.Get("/", app.Ping)
-
-	r.Get("/api/tasks", app.GetTasks)
-	r.Get("/api/tasks/{id}", app.GetTask)
 	
+	r.Get("/", app.Ping)
+	
+	r.Route("/api/tasks", func(r chi.Router) {
+		r.Get("/", app.GetTasks)
+		r.Post("/", app.PostTask)
+		r.Get("/{id}", app.GetTask)
+		r.Put("/{id}", app.PutTask)
+	})
+
 	return r
 }

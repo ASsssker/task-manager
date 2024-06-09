@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"io"
 	"task-manager/internal/models"
 )
 
@@ -17,19 +18,19 @@ func (s *TaskService) Get(id uint) (*bytes.Buffer, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	buf := &bytes.Buffer{}
 
 	if err := json.NewEncoder(buf).Encode(task); err != nil {
 		return nil, err
 	}
-	
+
 	return buf, nil
 }
 
 func (s *TaskService) GetTasks() (*bytes.Buffer, error) {
 	tasks, err := s.Model.GetLists()
-	if err != nil  && errors.Is(err, sql.ErrNoRows){
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
@@ -42,8 +43,13 @@ func (s *TaskService) GetTasks() (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-func (s *TaskService) Insert( title, description string, userID uint) (*bytes.Buffer, error) {
-	task, err := s.Model.Insert(title, description, userID)
+func (s *TaskService) Insert(data io.Reader) (*bytes.Buffer, error) {
+	model := &models.Task{}
+	if err := JsonDecode(data, model); err != nil {
+		return nil, err
+	}
+
+	task, err := s.Model.Insert(model.Title, model.Description, model.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -53,12 +59,20 @@ func (s *TaskService) Insert( title, description string, userID uint) (*bytes.Bu
 	if err := json.NewEncoder(buf).Encode(task); err != nil {
 		return nil, err
 	}
-	
+
 	return buf, nil
 }
 
-func (s *TaskService) Update(id uint, title, descritpion string, status bool) (*bytes.Buffer, error) {
-	task, err := s.Model.Update(id, title, descritpion, status)
+func (s *TaskService) Update(id uint, data io.Reader) (*bytes.Buffer, error) {
+	model, err := s.Model.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	
+	if err := JsonDecode(data, model); err != nil {
+		return nil, err
+	}
+	task, err := s.Model.Update(id, model.Title, model.Description, model.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -68,6 +82,6 @@ func (s *TaskService) Update(id uint, title, descritpion string, status bool) (*
 	if err := json.NewEncoder(buf).Encode(task); err != nil {
 		return nil, err
 	}
-	
+
 	return buf, nil
 }
