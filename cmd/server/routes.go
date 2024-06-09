@@ -5,6 +5,8 @@ import "github.com/go-chi/chi/v5"
 func (app *Applicaton) getRoutes() *chi.Mux {
 	r := chi.NewMux()
 	
+	r.Use(app.RequestsInfo)
+
 	r.Get("/", app.Ping)
 	
 	r.Route("/api/tasks", func(r chi.Router) {

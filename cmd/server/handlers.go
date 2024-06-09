@@ -19,6 +19,7 @@ func (app *Applicaton) GetTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Write(data.Bytes())
 }
 
@@ -40,6 +41,7 @@ func (app *Applicaton) GetTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Write(data.Bytes())
 }
 
@@ -69,6 +71,7 @@ func (app *Applicaton) PutTask(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	w.WriteHeader(http.StatusOK)
 	w.Write(data.Bytes())
 }
 
@@ -86,5 +89,6 @@ func (app *Applicaton) DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(http.StatusText(http.StatusOK)))
 }
