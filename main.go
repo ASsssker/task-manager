@@ -1,8 +1,13 @@
 package main
 
-import "task-manager/cmd/server"
+import (
+	"task-manager/cmd/server"
+)
 
 func main() {
-	app := server.GetApp()
+	app, err := server.GetApp()
+	if err != nil {
+		panic(err)
+	}
 	app.RunServer()
 }
