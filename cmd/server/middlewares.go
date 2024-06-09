@@ -71,3 +71,10 @@ func (app *Applicaton) CompressResponse(next http.Handler) http.Handler {
 		next.ServeHTTP(GzipWriter{Writer: gz, ResponseWriter: w}, r)
 	})
 }
+
+func (app *Applicaton) SetApplicationHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
+}

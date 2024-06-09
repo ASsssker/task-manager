@@ -5,7 +5,7 @@ import "github.com/go-chi/chi/v5"
 func (app *Applicaton) getRoutes() *chi.Mux {
 	r := chi.NewMux()
 	
-	r.Use(app.RequestsInfo)
+	r.Use(app.RequestsInfo, app.CompressResponse, app.SetApplicationHeader)
 
 	r.Get("/", app.Ping)
 	
